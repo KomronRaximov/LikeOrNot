@@ -39,7 +39,7 @@ export default function CreateProfile() {
       const formData = new FormData()
       Object.entries(form).forEach(([k, v]) => formData.append(k, v))
       if (avatar) formData.append('avatar', avatar)
-      const res = await profilesAPI.create(Object.fromEntries(formData))
+      const res = await profilesAPI.create(formData)
       navigate(`/profiles/${res.data.id}`)
     } catch (err) {
       const data = err.response?.data
