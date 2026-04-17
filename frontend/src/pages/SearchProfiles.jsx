@@ -2,7 +2,18 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { profilesAPI } from '../services/api'
 
-const RELATIONS = ['self', 'friend', 'brother', 'sister', 'mother', 'father', 'colleague', 'partner', 'custom']
+const RELATIONS = [
+  { value: 'friend', label: 'Friend' },
+  { value: 'brother', label: 'Brother' },
+  { value: 'sister', label: 'Sister' },
+  { value: 'mother', label: 'Mother' },
+  { value: 'father', label: 'Father' },
+  { value: 'colleague', label: 'Colleague' },
+  { value: 'partner', label: 'Partner' },
+  { value: 'girlfriend', label: 'Girlfriend' },
+  { value: 'boyfriend', label: 'Boyfriend' },
+  { value: 'custom', label: 'Other' },
+]
 
 export default function SearchProfiles() {
   const navigate = useNavigate()
@@ -11,6 +22,7 @@ export default function SearchProfiles() {
   const [loading, setLoading] = useState(false)
   const [addLoading, setAddLoading] = useState(false)
   const [showCreateForm, setShowCreateForm] = useState(false)
+  const [relation, setRelation] = useState('custom')
   const [createForm, setCreateForm] = useState({ full_name: '', relation: 'custom' })
 
   const handleSearch = async (e) => {
@@ -19,6 +31,7 @@ export default function SearchProfiles() {
     setLoading(true)
     setResult(null)
     setShowCreateForm(false)
+    setRelation('custom')
     try {
       const res = await profilesAPI.search(username.trim())
       setResult(res.data)
@@ -35,7 +48,7 @@ export default function SearchProfiles() {
       const res = await profilesAPI.createFromUsername({
         username: username.trim(),
         full_name: result?.profile?.full_name || username.trim(),
-        relation: 'custom',
+        relation,
       })
       navigate(`/profiles/${res.data.id}`)
     } finally {
@@ -90,12 +103,15 @@ export default function SearchProfiles() {
                 <div className="min-w-0">
                   <h3 className="font-semibold truncate">{result.profile.full_name}</h3>
                   <p className="text-sm text-gray-500">@{result.profile.username}</p>
-                  {result.profile.relation && (
-                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                      {result.profile.relation}
-                    </span>
-                  )}
                 </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Relation</label>
+                <select className="input-field" value={relation} onChange={(e) => setRelation(e.target.value)}>
+                  {RELATIONS.map((r) => (
+                    <option key={r.value} value={r.value}>{r.label}</option>
+                  ))}
+                </select>
               </div>
               <button onClick={handleAdd} disabled={addLoading} className="btn-primary w-full py-2.5">
                 {addLoading ? 'Adding...' : '+ Add to My Profiles'}
@@ -130,7 +146,7 @@ export default function SearchProfiles() {
                     <label className="block text-sm text-gray-600 mb-1">Relation</label>
                     <select className="input-field" value={createForm.relation} onChange={(e) => setCreateForm({ ...createForm, relation: e.target.value })}>
                       {RELATIONS.map((r) => (
-                        <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
+                        <option key={r.value} value={r.value}>{r.label}</option>
                       ))}
                     </select>
                   </div>

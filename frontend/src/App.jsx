@@ -11,6 +11,7 @@ import AddPreference from './pages/AddPreference'
 import EditPreference from './pages/EditPreference'
 import Stats from './pages/Stats'
 import SearchProfiles from './pages/SearchProfiles'
+import EditProfile from './pages/EditProfile'
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth()
@@ -46,6 +47,7 @@ export default function App() {
           <Route path="/profiles/create" element={<PrivateRoute><Layout><CreateProfile /></Layout></PrivateRoute>} />
           <Route path="/profiles/search" element={<PrivateRoute><Layout><SearchProfiles /></Layout></PrivateRoute>} />
           <Route path="/profiles/:id" element={<PrivateRoute><Layout><ProfileDetail /></Layout></PrivateRoute>} />
+          <Route path="/profiles/:id/edit" element={<PrivateRoute><Layout><EditProfile /></Layout></PrivateRoute>} />
           <Route path="/preferences/create" element={<PrivateRoute><Layout><AddPreference /></Layout></PrivateRoute>} />
           <Route path="/preferences/:id/edit" element={<PrivateRoute><Layout><EditPreference /></Layout></PrivateRoute>} />
           <Route path="/stats" element={<PrivateRoute><Layout><Stats /></Layout></PrivateRoute>} />

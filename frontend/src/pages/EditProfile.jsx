@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { profilesAPI } from '../services/api'
 
 const RELATIONS = [
@@ -16,16 +16,31 @@ const RELATIONS = [
   { value: 'custom', label: 'Other' },
 ]
 
-export default function CreateProfile() {
+export default function EditProfile() {
+  const { id } = useParams()
   const navigate = useNavigate()
-  const [form, setForm] = useState({
-    username: '', full_name: '', nickname: '',
-    relation: 'custom', bio: '', is_self_profile: false, is_public: false,
-  })
+  const [form, setForm] = useState(null)
   const [avatar, setAvatar] = useState(null)
   const [avatarPreview, setAvatarPreview] = useState(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [fetching, setFetching] = useState(true)
+
+  useEffect(() => {
+    profilesAPI.get(id).then((res) => {
+      const p = res.data
+      setForm({
+        username: p.username || '',
+        full_name: p.full_name || '',
+        nickname: p.nickname || '',
+        relation: p.relation || 'custom',
+        bio: p.bio || '',
+        is_self_profile: p.is_self_profile || false,
+        is_public: p.is_public || false,
+      })
+      setAvatarPreview(p.avatar_url || null)
+    }).finally(() => setFetching(false))
+  }, [id])
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0]
@@ -41,14 +56,14 @@ export default function CreateProfile() {
       const formData = new FormData()
       Object.entries(form).forEach(([k, v]) => formData.append(k, v))
       if (avatar) formData.append('avatar', avatar)
-      const res = await profilesAPI.create(formData)
-      navigate(`/profiles/${res.data.id}`)
+      await profilesAPI.update(id, formData)
+      navigate(`/profiles/${id}`)
     } catch (err) {
       const data = err.response?.data
       if (data && typeof data === 'object') {
         setError(Object.entries(data).map(([k, v]) => `${k}: ${Array.isArray(v) ? v[0] : v}`).join(', '))
       } else {
-        setError('Failed to create profile.')
+        setError('Failed to update profile.')
       }
     } finally {
       setLoading(false)
@@ -57,9 +72,17 @@ export default function CreateProfile() {
 
   const f = (field, val) => setForm({ ...form, [field]: val })
 
+  if (fetching) return (
+    <div className="flex justify-center py-20">
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+    </div>
+  )
+
+  if (!form) return <div className="text-center py-20 text-gray-400">Profile not found.</div>
+
   return (
     <div className="max-w-lg mx-auto space-y-5 px-0 sm:px-0">
-      <h1 className="text-xl sm:text-2xl font-bold">Create Profile</h1>
+      <h1 className="text-xl sm:text-2xl font-bold">Edit Profile</h1>
       <div className="card">
         {error && <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>}
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -121,9 +144,9 @@ export default function CreateProfile() {
 
           <div className="flex gap-3 pt-2">
             <button type="submit" disabled={loading} className="btn-primary flex-1 py-2.5">
-              {loading ? 'Creating...' : 'Create Profile'}
+              {loading ? 'Saving...' : 'Save Changes'}
             </button>
-            <button type="button" onClick={() => navigate('/profiles')} className="btn-secondary px-5">
+            <button type="button" onClick={() => navigate(`/profiles/${id}`)} className="btn-secondary px-5">
               Cancel
             </button>
           </div>

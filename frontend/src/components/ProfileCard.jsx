@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom'
 
 const RELATION_LABELS = {
   self: 'Self', friend: 'Friend', brother: 'Brother', sister: 'Sister',
-  mother: 'Mother', father: 'Father', colleague: 'Colleague', partner: 'Partner', custom: 'Custom',
+  mother: 'Mother', father: 'Father', colleague: 'Colleague', partner: 'Partner',
+  girlfriend: 'Girlfriend', boyfriend: 'Boyfriend', custom: 'Custom',
 }
 
 export default function ProfileCard({ profile, onDelete }) {
@@ -20,10 +21,18 @@ export default function ProfileCard({ profile, onDelete }) {
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2 flex-wrap">
           <div className="min-w-0">
-            <h3 className="font-semibold text-gray-900 truncate">{profile.full_name}</h3>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <h3 className="font-semibold text-gray-900 truncate">{profile.full_name}</h3>
+              {profile.is_self_profile && (
+                <span className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full">Me</span>
+              )}
+              {profile.is_public && (
+                <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">Public</span>
+              )}
+            </div>
             <p className="text-sm text-gray-500">@{profile.username}</p>
           </div>
-          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full whitespace-nowrap">
+          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
             {RELATION_LABELS[profile.relation] || profile.relation}
           </span>
         </div>
@@ -32,15 +41,18 @@ export default function ProfileCard({ profile, onDelete }) {
           <span>👎 {profile.dislike_count}</span>
           <span>📋 {profile.preference_count} total</span>
         </div>
-        <div className="mt-3 flex gap-2 flex-wrap">
+        <div className="mt-3 flex items-center gap-2 flex-wrap">
           <Link to={`/profiles/${profile.id}`} className="btn-primary text-xs py-1.5 px-3">
             View
           </Link>
+          <Link to={`/profiles/${profile.id}/edit`} className="btn-secondary text-xs py-1.5 px-3">
+            Edit
+          </Link>
           <Link to={`/preferences/create?profile=${profile.id}`} className="btn-secondary text-xs py-1.5 px-3">
-            Add Preference
+            + Preference
           </Link>
           {onDelete && (
-            <button onClick={() => onDelete(profile.id)} className="btn-danger text-xs py-1.5 px-3">
+            <button onClick={() => onDelete(profile.id)} className="text-xs text-red-500 hover:text-red-700 ml-auto">
               Delete
             </button>
           )}

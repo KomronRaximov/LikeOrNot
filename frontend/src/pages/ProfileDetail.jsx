@@ -41,6 +41,12 @@ export default function ProfileDetail() {
     setPrefs(prefs.filter((p) => p.id !== prefId))
   }
 
+  const handleDeleteProfile = async () => {
+    if (!confirm('Delete this profile? All preferences will be removed.')) return
+    await profilesAPI.delete(id)
+    navigate('/profiles')
+  }
+
   if (loading) return (
     <div className="flex justify-center py-20">
       <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
@@ -65,15 +71,25 @@ export default function ProfileDetail() {
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2 flex-wrap">
               <div>
-                <h1 className="text-lg sm:text-xl font-bold">{profile.full_name}</h1>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-lg sm:text-xl font-bold">{profile.full_name}</h1>
+                  {profile.is_self_profile && (
+                    <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">Me</span>
+                  )}
+                  {profile.is_public && (
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Public</span>
+                  )}
+                </div>
                 <p className="text-gray-500 text-sm">@{profile.username}</p>
               </div>
-              <button
-                onClick={() => navigate('/profiles')}
-                className="btn-secondary text-xs py-1.5 px-3"
-              >
-                ← Back
-              </button>
+              <div className="flex gap-2 flex-shrink-0">
+                <Link to={`/profiles/${id}/edit`} className="btn-secondary text-xs py-1.5 px-3">
+                  Edit
+                </Link>
+                <button onClick={() => navigate('/profiles')} className="btn-secondary text-xs py-1.5 px-3">
+                  ← Back
+                </button>
+              </div>
             </div>
             {profile.bio && <p className="text-gray-600 text-sm mt-1">{profile.bio}</p>}
             <div className="flex gap-3 mt-2 text-xs sm:text-sm text-gray-500 flex-wrap">
@@ -83,10 +99,13 @@ export default function ProfileDetail() {
             </div>
           </div>
         </div>
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          <Link to={`/preferences/create?profile=${id}`} className="btn-primary text-sm w-full sm:w-auto text-center block sm:inline-block">
+        <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between gap-3 flex-wrap">
+          <Link to={`/preferences/create?profile=${id}`} className="btn-primary text-sm">
             + Add Preference
           </Link>
+          <button onClick={handleDeleteProfile} className="text-sm text-red-500 hover:text-red-700">
+            Delete Profile
+          </button>
         </div>
       </div>
 

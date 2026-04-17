@@ -24,6 +24,7 @@ export default function EditPreference() {
         level: d.level,
         note: d.note,
       })
+      setImagePreview(d.image_url || null)
       setCategories(c.data.results || c.data)
     })
   }, [id])
@@ -127,11 +128,22 @@ export default function EditPreference() {
 
           {/* Image */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Replace Image</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {image ? 'New Image' : 'Current Image'}
+            </label>
             {imagePreview && (
               <img src={imagePreview} alt="preview" className="w-20 h-20 rounded-lg object-cover mb-2" />
             )}
             <input type="file" accept="image/*" onChange={handleImageChange} className="text-sm text-gray-600 w-full" />
+            {image && (
+              <button
+                type="button"
+                onClick={() => { setImage(null); setImagePreview(null) }}
+                className="text-xs text-red-500 hover:underline mt-1"
+              >
+                Remove new image
+              </button>
+            )}
           </div>
 
           <div>

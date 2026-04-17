@@ -15,7 +15,7 @@ export default function Navbar() {
   }
 
   const isActive = (path) =>
-    pathname === path
+    pathname === path || (path !== '/dashboard' && pathname.startsWith(path))
       ? 'text-blue-600 font-semibold'
       : 'text-gray-600 hover:text-blue-600'
 

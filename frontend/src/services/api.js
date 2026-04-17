@@ -8,6 +8,9 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('access_token')
   if (token) config.headers.Authorization = `Bearer ${token}`
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type']
+  }
   return config
 })
 
@@ -64,7 +67,7 @@ export const preferencesAPI = {
     Object.entries(data).forEach(([k, v]) => {
       if (v !== null && v !== undefined && v !== '') form.append(k, v)
     })
-    return api.post('/preferences/', form, { headers: { 'Content-Type': 'multipart/form-data' } })
+    return api.post('/preferences/', form)
   },
   get: (id) => api.get(`/preferences/${id}/`),
   update: (id, data) => {
@@ -72,7 +75,7 @@ export const preferencesAPI = {
     Object.entries(data).forEach(([k, v]) => {
       if (v !== null && v !== undefined && v !== '') form.append(k, v)
     })
-    return api.patch(`/preferences/${id}/`, form, { headers: { 'Content-Type': 'multipart/form-data' } })
+    return api.patch(`/preferences/${id}/`, form)
   },
   delete: (id) => api.delete(`/preferences/${id}/`),
 }
