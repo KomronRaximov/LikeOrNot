@@ -12,6 +12,8 @@ class Profile(models.Model):
         ('father', 'Father'),
         ('colleague', 'Colleague'),
         ('partner', 'Partner'),
+        ('girlfriend', 'Girlfriend'),
+        ('boyfriend', 'Boyfriend'),
         ('custom', 'Custom'),
     ]
 

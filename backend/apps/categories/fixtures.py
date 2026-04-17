@@ -11,4 +11,5 @@ DEFAULT_CATEGORIES = [
     {'name': 'Places', 'icon': '📍'},
     {'name': 'Brands', 'icon': '🏷️'},
     {'name': 'Character', 'icon': '💫'},
+    {'name': 'Other', 'icon': '📌'},
 ]
