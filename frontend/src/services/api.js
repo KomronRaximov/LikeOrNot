@@ -44,13 +44,9 @@ export const authAPI = {
 
 export const profilesAPI = {
   list: () => api.get('/profiles/'),
-  create: (data) => api.post('/profiles/', data, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  }),
+  create: (data) => api.post('/profiles/', data),
   get: (id) => api.get(`/profiles/${id}/`),
-  update: (id, data) => api.patch(`/profiles/${id}/`, data, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  }),
+  update: (id, data) => api.patch(`/profiles/${id}/`, data),
   delete: (id) => api.delete(`/profiles/${id}/`),
   search: (username) => api.get(`/profiles/search/?username=${username}`),
   createFromUsername: (data) => api.post('/profiles/create-from-username/', data),

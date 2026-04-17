@@ -114,7 +114,7 @@ class ProfileSearchView(APIView):
             return Response({'found': True, 'profile': ProfileSerializer(profile, context={'request': request}).data})
 
         if not profile.is_public:
-            return Response({'found': True, 'profile': ProfilePublicSerializer(profile, context={'request': request}).data})
+            return Response({'found': False, 'profile': None})
 
         return Response({'found': True, 'profile': ProfilePublicSerializer(profile, context={'request': request}).data})
 
