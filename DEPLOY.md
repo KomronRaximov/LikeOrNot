@@ -1,15 +1,18 @@
 # Deploy Guide
 
-This project is easiest to deploy on one domain with:
+This project can run on a server IP address without a domain.
+
+Recommended setup:
 
 - `Nginx` serving the built frontend
 - `Gunicorn` running Django
 - `systemd` keeping Gunicorn alive
 
-Example domain used below:
+Example used below:
 
-- frontend: `https://likeornot.example.com`
-- backend API on same domain via `/api/`
+- server IP: `123.45.67.89`
+- frontend: `http://123.45.67.89`
+- backend API on same IP via `/api/`
 
 ## 1. Install packages
 
@@ -46,10 +49,13 @@ Update the root `.env` file for production:
 ```env
 SECRET_KEY=replace-with-a-long-random-secret
 DEBUG=False
-ALLOWED_HOSTS=likeornot.example.com,www.likeornot.example.com
-CORS_ALLOWED_ORIGINS=https://likeornot.example.com,https://www.likeornot.example.com
-CSRF_TRUSTED_ORIGINS=https://likeornot.example.com,https://www.likeornot.example.com
+ENABLE_HTTPS=False
+ALLOWED_HOSTS=123.45.67.89
+CORS_ALLOWED_ORIGINS=http://123.45.67.89
+CSRF_TRUSTED_ORIGINS=http://123.45.67.89
 ```
+
+Replace `123.45.67.89` with your real server IP.
 
 ## 4. Frontend build
 
@@ -98,7 +104,7 @@ Create `/etc/nginx/sites-available/likeornot`:
 ```nginx
 server {
     listen 80;
-    server_name likeornot.example.com www.likeornot.example.com;
+    server_name 123.45.67.89;
 
     root /var/www/likeornot/frontend/dist;
     index index.html;
@@ -128,21 +134,19 @@ server {
 Enable it:
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/likeornot /etc/nginx/sites-enabled/likeornot
+sudo ln -sf /etc/nginx/sites-available/likeornot /etc/nginx/sites-enabled/likeornot
+sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t
 sudo systemctl restart nginx
 ```
 
-## 7. HTTPS
-
-If your domain is already pointing to the server:
+Then open:
 
 ```bash
-sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d likeornot.example.com -d www.likeornot.example.com
+http://123.45.67.89
 ```
 
-## 8. Update after new push
+## 7. Update after new push
 
 ```bash
 cd /var/www/likeornot
