@@ -1,0 +1,14 @@
+DEFAULT_CATEGORIES = [
+    {'name': 'Food', 'icon': '🍽️'},
+    {'name': 'Drinks', 'icon': '☕'},
+    {'name': 'Movies', 'icon': '🎬'},
+    {'name': 'Music', 'icon': '🎵'},
+    {'name': 'Books', 'icon': '📚'},
+    {'name': 'Hobbies', 'icon': '🎯'},
+    {'name': 'Colors', 'icon': '🎨'},
+    {'name': 'Sports', 'icon': '⚽'},
+    {'name': 'Gifts', 'icon': '🎁'},
+    {'name': 'Places', 'icon': '📍'},
+    {'name': 'Brands', 'icon': '🏷️'},
+    {'name': 'Character', 'icon': '💫'},
+]
