@@ -24,6 +24,10 @@ urlpatterns = [
     path('preferences/', views.PreferenceListCreateView.as_view(), name='preference-list'),
     path('preferences/<int:pk>/', views.PreferenceDetailView.as_view(), name='preference-detail'),
 
+    # Notes
+    path('notes/', views.NoteListCreateView.as_view(), name='note-list'),
+    path('notes/<int:pk>/', views.NoteDetailView.as_view(), name='note-detail'),
+
     # Stats
     path('stats/overview/', views.StatsOverviewView.as_view(), name='stats-overview'),
     path('stats/profile/<int:pk>/', views.StatsProfileView.as_view(), name='stats-profile'),

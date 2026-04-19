@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.conf import settings
 from apps.users.models import User
-from apps.profiles.models import Profile
+from apps.profiles.models import Profile, Note
 from apps.categories.models import Category
 from apps.preferences.models import PreferenceEntry
 
@@ -53,9 +53,8 @@ class ProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'owner', 'created_at', 'updated_at')
 
     def get_avatar_url(self, obj):
-        request = self.context.get('request')
-        if obj.avatar and request:
-            return request.build_absolute_uri(obj.avatar.url)
+        if obj.avatar:
+            return obj.avatar.url
         return None
 
     def validate(self, data):
@@ -97,11 +96,8 @@ class PreferenceEntrySerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'created_by', 'image_source_type', 'created_at', 'updated_at')
 
     def get_image_url(self, obj):
-        request = self.context.get('request')
-        if obj.image and request:
-            return request.build_absolute_uri(obj.image.url)
-        if request:
-            return request.build_absolute_uri(f'/media/{settings.DEFAULT_PREFERENCE_IMAGE}')
+        if obj.image:
+            return obj.image.url
         return f'/media/{settings.DEFAULT_PREFERENCE_IMAGE}'
 
     def validate_profile(self, value):
@@ -117,6 +113,17 @@ class PreferenceEntrySerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data['created_by'] = self.context['request'].user
+        return super().create(validated_data)
+
+
+class NoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Note
+        fields = ('id', 'title', 'body', 'created_at', 'updated_at')
+        read_only_fields = ('id', 'created_at', 'updated_at')
+
+    def create(self, validated_data):
+        validated_data['owner'] = self.context['request'].user
         return super().create(validated_data)
 
 

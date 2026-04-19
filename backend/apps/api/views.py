@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate
 from django.db.models import Count, Avg, Q
 
 from apps.users.models import User
-from apps.profiles.models import Profile
+from apps.profiles.models import Profile, Note
 from apps.categories.models import Category
 from apps.preferences.models import PreferenceEntry
 from apps.common.permissions import IsOwner
@@ -16,6 +16,7 @@ from .serializers import (
     CategorySerializer,
     ProfileSerializer, ProfilePublicSerializer,
     PreferenceEntrySerializer, TelegramSyncSerializer,
+    NoteSerializer,
 )
 
 
@@ -188,6 +189,24 @@ class PreferenceDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return PreferenceEntry.objects.filter(profile__owner=self.request.user)
+
+
+# ─── Notes ───────────────────────────────────────────────────────────────────
+
+class NoteListCreateView(generics.ListCreateAPIView):
+    serializer_class = NoteSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Note.objects.filter(owner=self.request.user)
+
+
+class NoteDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = NoteSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Note.objects.filter(owner=self.request.user)
 
 
 # ─── Statistics ──────────────────────────────────────────────────────────────
