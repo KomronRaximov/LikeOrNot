@@ -12,6 +12,8 @@ import EditPreference from './pages/EditPreference'
 import Stats from './pages/Stats'
 import SearchProfiles from './pages/SearchProfiles'
 import EditProfile from './pages/EditProfile'
+import Notes from './pages/Notes'
+import EditNote from './pages/EditNote'
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth()
@@ -50,6 +52,8 @@ export default function App() {
           <Route path="/profiles/:id/edit" element={<PrivateRoute><Layout><EditProfile /></Layout></PrivateRoute>} />
           <Route path="/preferences/create" element={<PrivateRoute><Layout><AddPreference /></Layout></PrivateRoute>} />
           <Route path="/preferences/:id/edit" element={<PrivateRoute><Layout><EditPreference /></Layout></PrivateRoute>} />
+          <Route path="/notes" element={<PrivateRoute><Layout><Notes /></Layout></PrivateRoute>} />
+          <Route path="/notes/:id/edit" element={<PrivateRoute><Layout><EditNote /></Layout></PrivateRoute>} />
           <Route path="/stats" element={<PrivateRoute><Layout><Stats /></Layout></PrivateRoute>} />
         </Routes>
       </AuthProvider>

@@ -80,6 +80,14 @@ export const preferencesAPI = {
   delete: (id) => api.delete(`/preferences/${id}/`),
 }
 
+export const notesAPI = {
+  list: () => api.get('/notes/'),
+  create: (data) => api.post('/notes/', data),
+  get: (id) => api.get(`/notes/${id}/`),
+  update: (id, data) => api.patch(`/notes/${id}/`, data),
+  delete: (id) => api.delete(`/notes/${id}/`),
+}
+
 export const statsAPI = {
   overview: () => api.get('/stats/overview/'),
   profile: (id) => api.get(`/stats/profile/${id}/`),

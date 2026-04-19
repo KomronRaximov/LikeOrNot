@@ -22,6 +22,7 @@ export default function Navbar() {
   const navLinks = [
     { to: '/dashboard', label: 'Dashboard' },
     { to: '/profiles', label: 'Profiles' },
+    { to: '/notes', label: 'Notes' },
     { to: '/stats', label: 'Stats' },
     { to: '/profiles/search', label: 'Search' },
   ]
