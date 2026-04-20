@@ -5,14 +5,14 @@ import { notesAPI } from '../services/api'
 export default function EditNote() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const [form, setForm] = useState({ title: '', body: '' })
+  const [form, setForm] = useState({ profile: '', title: '', body: '' })
   const [fetching, setFetching] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
     notesAPI.get(id).then((res) => {
-      setForm({ title: res.data.title, body: res.data.body || '' })
+      setForm({ profile: res.data.profile || '', title: res.data.title, body: res.data.body || '' })
     }).catch(() => navigate('/notes'))
     .finally(() => setFetching(false))
   }, [id])
@@ -24,7 +24,7 @@ export default function EditNote() {
     setSaving(true)
     try {
       await notesAPI.update(id, form)
-      navigate('/notes')
+      navigate(form.profile ? `/profiles/${form.profile}` : '/notes')
     } catch {
       setError('Saqlashda xatolik yuz berdi.')
     } finally {

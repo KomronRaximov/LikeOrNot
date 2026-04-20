@@ -1,30 +1,39 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { notesAPI } from '../services/api'
+import { notesAPI, profilesAPI } from '../services/api'
 
 export default function Notes() {
   const [notes, setNotes] = useState([])
+  const [profiles, setProfiles] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ title: '', body: '' })
+  const [form, setForm] = useState({ profile: '', title: '', body: '' })
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    notesAPI.list().then((res) => {
-      setNotes(res.data.results || res.data)
+    Promise.all([
+      notesAPI.list(),
+      profilesAPI.list(),
+    ]).then(([notesRes, profilesRes]) => {
+      const profileList = profilesRes.data.results || profilesRes.data
+      setNotes(notesRes.data.results || notesRes.data)
+      setProfiles(profileList)
+      if (profileList.length > 0) {
+        setForm((current) => ({ ...current, profile: String(profileList[0].id) }))
+      }
     }).finally(() => setLoading(false))
   }, [])
 
   const handleCreate = async (e) => {
     e.preventDefault()
-    if (!form.title.trim()) return
+    if (!form.profile || !form.title.trim()) return
     setError('')
     setSaving(true)
     try {
       const res = await notesAPI.create(form)
       setNotes([res.data, ...notes])
-      setForm({ title: '', body: '' })
+      setForm({ profile: form.profile, title: '', body: '' })
       setShowForm(false)
     } catch {
       setError('Saqlashda xatolik yuz berdi.')
@@ -63,6 +72,19 @@ export default function Notes() {
         <div className="card">
           {error && <div className="mb-3 p-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>}
           <form onSubmit={handleCreate} className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Profile *</label>
+              <select
+                className="input-field"
+                value={form.profile}
+                onChange={(e) => setForm({ ...form, profile: e.target.value })}
+                required
+              >
+                {profiles.map((profile) => (
+                  <option key={profile.id} value={profile.id}>{profile.full_name} (@{profile.username})</option>
+                ))}
+              </select>
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Sarlavha *</label>
               <input
@@ -120,6 +142,9 @@ export default function Notes() {
               </div>
               {note.body && (
                 <p className="text-sm text-gray-600 whitespace-pre-wrap line-clamp-4">{note.body}</p>
+              )}
+              {note.profile_name && (
+                <p className="text-xs text-blue-500">@ {note.profile_name}</p>
               )}
               <p className="text-xs text-gray-400 mt-auto pt-1">{formatDate(note.updated_at)}</p>
             </div>

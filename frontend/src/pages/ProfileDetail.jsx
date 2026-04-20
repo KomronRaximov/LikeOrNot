@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { profilesAPI, preferencesAPI } from '../services/api'
+import { profilesAPI, preferencesAPI, notesAPI } from '../services/api'
 import PreferenceCard from '../components/PreferenceCard'
 
 const TABS = [
@@ -15,17 +15,24 @@ export default function ProfileDetail() {
   const navigate = useNavigate()
   const [profile, setProfile] = useState(null)
   const [prefs, setPrefs] = useState([])
+  const [notes, setNotes] = useState([])
   const [tab, setTab] = useState('')
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
+  const [showNoteForm, setShowNoteForm] = useState(false)
+  const [noteForm, setNoteForm] = useState({ title: '', body: '' })
+  const [noteSaving, setNoteSaving] = useState(false)
+  const [noteError, setNoteError] = useState('')
 
   useEffect(() => {
     Promise.all([
       profilesAPI.get(id),
       preferencesAPI.list({ profile: id }),
-    ]).then(([p, pr]) => {
+      notesAPI.list({ profile: id }),
+    ]).then(([p, pr, n]) => {
       setProfile(p.data)
       setPrefs(pr.data.results || pr.data)
+      setNotes(n.data.results || n.data)
     }).finally(() => setLoading(false))
   }, [id])
 
@@ -45,6 +52,34 @@ export default function ProfileDetail() {
     if (!confirm('Delete this profile? All preferences will be removed.')) return
     await profilesAPI.delete(id)
     navigate('/profiles')
+  }
+
+  const handleCreateNote = async (e) => {
+    e.preventDefault()
+    if (!noteForm.title.trim()) return
+    setNoteError('')
+    setNoteSaving(true)
+    try {
+      const res = await notesAPI.create({ ...noteForm, profile: id })
+      setNotes([res.data, ...notes])
+      setNoteForm({ title: '', body: '' })
+      setShowNoteForm(false)
+    } catch {
+      setNoteError('Note saqlashda xatolik yuz berdi.')
+    } finally {
+      setNoteSaving(false)
+    }
+  }
+
+  const handleDeleteNote = async (noteId) => {
+    if (!confirm('Ushbu noteni o\'chirmoqchimisiz?')) return
+    await notesAPI.delete(noteId)
+    setNotes(notes.filter((note) => note.id !== noteId))
+  }
+
+  const formatDate = (str) => {
+    const d = new Date(str)
+    return d.toLocaleDateString('uz-UZ', { day: '2-digit', month: 'short', year: 'numeric' })
   }
 
   if (loading) return (
@@ -107,6 +142,69 @@ export default function ProfileDetail() {
             Delete Profile
           </button>
         </div>
+      </div>
+
+      {/* Profile Notes */}
+      <div className="card">
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <div>
+            <h2 className="font-semibold text-gray-900">Profile notes</h2>
+            <p className="text-xs text-gray-400">Shu odam haqida qo'shimcha ma'lumotlar</p>
+          </div>
+          <button
+            onClick={() => { setShowNoteForm(!showNoteForm); setNoteError('') }}
+            className="btn-secondary text-xs py-1.5 px-3"
+          >
+            {showNoteForm ? 'Bekor qilish' : '+ Note'}
+          </button>
+        </div>
+
+        {showNoteForm && (
+          <form onSubmit={handleCreateNote} className="space-y-3 mb-4 p-3 bg-gray-50 rounded-xl">
+            {noteError && <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">{noteError}</div>}
+            <input
+              className="input-field"
+              value={noteForm.title}
+              onChange={(e) => setNoteForm({ ...noteForm, title: e.target.value })}
+              placeholder="Masalan: Sevimli kafesi"
+              required
+            />
+            <textarea
+              className="input-field resize-none"
+              rows={3}
+              value={noteForm.body}
+              onChange={(e) => setNoteForm({ ...noteForm, body: e.target.value })}
+              placeholder="Batafsil ma'lumot..."
+            />
+            <button type="submit" disabled={noteSaving} className="btn-primary w-full py-2">
+              {noteSaving ? 'Saqlanmoqda...' : 'Saqlash'}
+            </button>
+          </form>
+        )}
+
+        {notes.length === 0 ? (
+          <p className="text-sm text-gray-400">Bu profile uchun hali note yo'q.</p>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {notes.map((note) => (
+              <div key={note.id} className="rounded-xl border border-gray-100 p-3 bg-white">
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="font-medium text-gray-900 text-sm">{note.title}</h3>
+                  <div className="flex gap-2 flex-shrink-0">
+                    <Link to={`/notes/${note.id}/edit`} className="text-xs text-blue-500 hover:text-blue-700">
+                      Tahrir
+                    </Link>
+                    <button onClick={() => handleDeleteNote(note.id)} className="text-xs text-red-400 hover:text-red-600">
+                      O'chirish
+                    </button>
+                  </div>
+                </div>
+                {note.body && <p className="text-sm text-gray-600 whitespace-pre-wrap mt-1">{note.body}</p>}
+                <p className="text-xs text-gray-400 mt-2">{formatDate(note.updated_at)}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Filters */}

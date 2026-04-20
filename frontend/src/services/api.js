@@ -81,7 +81,7 @@ export const preferencesAPI = {
 }
 
 export const notesAPI = {
-  list: () => api.get('/notes/'),
+  list: (params = {}) => api.get('/notes/', { params }),
   create: (data) => api.post('/notes/', data),
   get: (id) => api.get(`/notes/${id}/`),
   update: (id, data) => api.patch(`/notes/${id}/`, data),
