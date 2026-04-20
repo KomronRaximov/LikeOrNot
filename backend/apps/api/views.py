@@ -198,7 +198,11 @@ class NoteListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Note.objects.filter(owner=self.request.user)
+        qs = Note.objects.filter(owner=self.request.user)
+        profile_id = self.request.query_params.get('profile')
+        if profile_id:
+            qs = qs.filter(profile_id=profile_id)
+        return qs.select_related('profile')
 
 
 class NoteDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -206,7 +210,7 @@ class NoteDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Note.objects.filter(owner=self.request.user)
+        return Note.objects.filter(owner=self.request.user).select_related('profile')
 
 
 # ─── Statistics ──────────────────────────────────────────────────────────────

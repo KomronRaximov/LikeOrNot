@@ -117,10 +117,23 @@ class PreferenceEntrySerializer(serializers.ModelSerializer):
 
 
 class NoteSerializer(serializers.ModelSerializer):
+    profile_name = serializers.CharField(source='profile.full_name', read_only=True)
+
     class Meta:
         model = Note
-        fields = ('id', 'title', 'body', 'created_at', 'updated_at')
-        read_only_fields = ('id', 'created_at', 'updated_at')
+        fields = ('id', 'profile', 'profile_name', 'title', 'body', 'created_at', 'updated_at')
+        read_only_fields = ('id', 'profile_name', 'created_at', 'updated_at')
+
+    def validate_profile(self, value):
+        request = self.context.get('request')
+        if value.owner != request.user:
+            raise serializers.ValidationError('You can only add notes to your own profiles.')
+        return value
+
+    def validate(self, data):
+        if not self.instance and not data.get('profile'):
+            raise serializers.ValidationError({'profile': 'Profile is required.'})
+        return data
 
     def create(self, validated_data):
         validated_data['owner'] = self.context['request'].user

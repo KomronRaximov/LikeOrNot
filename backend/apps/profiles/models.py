@@ -68,6 +68,13 @@ class Note(models.Model):
         on_delete=models.CASCADE,
         related_name='notes'
     )
+    profile = models.ForeignKey(
+        Profile,
+        on_delete=models.CASCADE,
+        related_name='notes',
+        null=True,
+        blank=True,
+    )
     title = models.CharField(max_length=255)
     body = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
